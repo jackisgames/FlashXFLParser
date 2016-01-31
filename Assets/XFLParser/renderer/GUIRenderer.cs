@@ -23,14 +23,13 @@ namespace renderer
             currentFrame = 0;
             isReady = false;
             activeSymbol = null;
-            //Debug.Log("lib " + library != null);
+            
             if (library != null)
             {
                 //library.symbolLibrary.TryGetValue(symbolName, out activeSymbol);
                 activeSymbol = library.getSymbol(symbolName);
                 if (activeSymbol != null)
                 {
-                    
                     foreach (DOMTimelineData timeline in activeSymbol.Timeline)
                     {
                         
@@ -46,9 +45,8 @@ namespace renderer
             
         }
 
-        void renderSymbol(Symbol symbol,float targetFrame,MatrixData parentMatrix=null)
+        void renderSymbol(Symbol symbol,float targetFrame, Vector2 parentPoint, MatrixData parentMat=null)
         {
-            
             foreach (DOMTimelineData timeline in symbol.Timeline)
             {
                 for(int layerIndex = timeline.layers.Count-1; layerIndex >=0; --layerIndex)
@@ -65,16 +63,18 @@ namespace renderer
                                 
                                 for (int instanceIndex=0;instanceIndex<frame.instances.Count;instanceIndex++)
                                 {
-                                    InstanceData instance = frame.instances[instanceIndex];
+                                    InstanceBaseData instance = frame.instances[instanceIndex];
                                     MatrixData mat = instance.matrix.matrix.clone();
-                                    if (parentMatrix != null)
+                                    Vector2 centerPoint = new Vector2(instance.centerPoint3DX,instance.centerPoint3DY);
+                                    if (parentMat != null)
                                     {
-                                        mat.tx += parentMatrix.tx;
-                                        mat.ty += parentMatrix.ty;
-                                        mat.a *= parentMatrix.a;
-                                        mat.b *= parentMatrix.b;
-                                        mat.c *= parentMatrix.c;
-                                        mat.d *= parentMatrix.d;
+                                        mat.tx += parentMat.tx;
+                                        mat.ty += parentMat.ty;
+                                        mat.a *= parentMat.a;
+                                        mat.b *= parentMat.b;
+                                        mat.c *= parentMat.c;
+                                        mat.d *= parentMat.d;
+                                        centerPoint += parentPoint;
                                     }
                                     if (frame.tweenType == "motion")
                                     {
@@ -82,12 +82,28 @@ namespace renderer
                                         if (frameIndex < layer.frames.Count - 1)
                                         {
                                             
-                                            
+
                                             FrameData nextFrame = layer.frames[frameIndex + 1];
+                                            
                                             if (instanceIndex < nextFrame.instances.Count)
                                             {
-                                                InstanceData nextFrameInstance = nextFrame.instances[instanceIndex];
-                                                MatrixData nextFramePos = nextFrameInstance.matrix.matrix;
+                                                
+
+
+                                                InstanceBaseData nextFrameInstance = nextFrame.instances[instanceIndex];
+                                                MatrixData nextFramePos = nextFrameInstance.matrix.matrix.clone();
+                                                Vector2 nextCenterPoint = new Vector2(nextFrameInstance.centerPoint3DX, nextFrameInstance.centerPoint3DY);
+                                                if (parentMat != null)
+                                                {
+                                                    nextFramePos.tx += parentMat.tx;
+                                                    nextFramePos.ty += parentMat.ty;
+                                                    nextFramePos.a *= parentMat.a;
+                                                    nextFramePos.b *= parentMat.b;
+                                                    nextFramePos.c *= parentMat.c;
+                                                    nextFramePos.d *= parentMat.d;
+                                                    nextCenterPoint += parentPoint;
+                                                }
+
                                                 float animProgress = (targetFrame - frame.index) / frame.duration;
                                                 mat.tx = Mathf.Lerp(mat.tx, nextFramePos.tx, animProgress);
                                                 mat.ty = Mathf.Lerp(mat.ty, nextFramePos.ty, animProgress);
@@ -95,17 +111,32 @@ namespace renderer
                                                 mat.b = Mathf.Lerp(mat.b, nextFramePos.b, animProgress);
                                                 mat.c = Mathf.Lerp(mat.c, nextFramePos.c, animProgress);
                                                 mat.d = Mathf.Lerp(mat.d, nextFramePos.d, animProgress);
+                                                centerPoint = Vector2.Lerp(centerPoint, nextCenterPoint, animProgress);
+                                                if (instance.type == InstanceType.Bitmap)
+                                                {
+                                                    GUILayout.Label("final point");
+                                                    GUILayout.Label("point " + centerPoint.x + " " + centerPoint.y);
+                                                }
+                                                /*GUILayout.Label("===============");
+                                                GUILayout.Label(frame.index + " " + frame.duration);
+                                                GUILayout.Label("center "+instance.centerPoint3DX + " " + instance.centerPoint3DY);
+                                                GUILayout.Label("point " + instance.transformationPoint.Point.x + " " + instance.transformationPoint.Point.y);
+                                                GUILayout.Label(nextFrame.index + " " + nextFrame.duration);
+                                                GUILayout.Label("center " + nextFrameInstance.centerPoint3DX + " " + nextFrameInstance.centerPoint3DY);
+                                                GUILayout.Label("point " + nextFrameInstance.transformationPoint.Point.x + " " + nextFrameInstance.transformationPoint.Point.y);*/
+
                                             }
 
                                         }
 
                                     }
-                                    if (instance.symbolType == "graphic")
+                                    //GUILayout.Label("instance: " + instance.libraryItemName +" type"+ instance.type);
+                                    if (instance.type == InstanceType.DisplayObject)
                                     {
                                         Symbol graphic = library.getSymbol(instance.libraryItemName);
                                         if (graphic != null)
                                         {
-                                            renderSymbol(graphic, 0,mat);
+                                            renderSymbol(graphic, 0,centerPoint,mat);
                                             
                                         }
                                     }
@@ -114,15 +145,15 @@ namespace renderer
 
                                         if (bitmap == null)
                                         {
-
+                                            //GUILayout.Label("bitmap null, " +instance.libraryItemName);
                                         }
                                         else
                                         {
                                             if (bitmap.texture != null)
                                             {
+                                                //GUILayout.Label("bitmap: " + bitmap.name);
 
-
-
+                                                
                                                 float w = bitmap.texture.width;
                                                 float h = bitmap.texture.height;
                                                 //got the math stuffs from here: http://math.stackexchange.com/questions/13150/extracting-rotation-scale-values-from-2d-transformation-matrix
@@ -130,8 +161,9 @@ namespace renderer
                                                 float rotation = Mathf.Atan2(-mat.b, mat.a) * 180 / Mathf.PI;
                                                 mat4.SetTRS(new Vector3(transform.position.x+w/2+mat.tx, transform.position.y+h/2+mat.ty, 0), Quaternion.Euler(new Vector3(0,0,rotation)), new Vector3(mat.a,mat.d,1));
                                                 GUI.matrix = mat4;
-                                                GUI.DrawTexture(new Rect(-w/2, -h/2, w, h), bitmap.texture);
+                                                GUI.DrawTexture(new Rect(centerPoint.x - w/2, centerPoint.y- h/2, w, h), bitmap.texture);
                                                 GUI.matrix = Matrix4x4.identity;
+                                                
                                                 /*mat4.m00 = mat.a;
                                                 mat4.m10 = mat.b;
                                                 mat4.m10 = mat.c;
@@ -172,7 +204,7 @@ namespace renderer
                 }
                 float targetFrame = currentFrame;
                 GUILayout.Label(targetFrame + " " + maxFrames);
-                renderSymbol(activeSymbol,targetFrame);
+                renderSymbol(activeSymbol,targetFrame,Vector2.zero);
             }
         }
     }

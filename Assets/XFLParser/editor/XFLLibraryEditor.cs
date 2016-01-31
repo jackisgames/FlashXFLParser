@@ -20,6 +20,7 @@ namespace editor
                 library.symbolNames.Clear();
                 library.symbolList.Clear();
                 library.bitmapNames.Clear();
+                library.bitmapNamesExt.Clear();
                 library.bitmapList.Clear();
                 //
                 string objectPath = AssetDatabase.GetAssetPath(target);
@@ -60,6 +61,7 @@ namespace editor
                                 bitmap.name = f.Name.Remove(f.Name.Length-f.Extension.Length);
                                 //Debug.Log("load path " + Path.Combine(relativePath, f.Name));
                                 bitmap.texture= AssetDatabase.LoadAssetAtPath(Path.Combine(relativePath, f.Name), typeof(Texture)) as Texture;
+                                library.bitmapNamesExt.Add(f.Name);
                                 library.bitmapNames.Add(bitmap.name);
                                 library.bitmapList.Add(bitmap);
                                 break;

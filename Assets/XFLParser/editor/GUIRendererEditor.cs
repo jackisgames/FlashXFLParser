@@ -19,7 +19,7 @@ namespace editor
                 selectedQueue = Mathf.Max(0, renderer.library.symbolNames.IndexOf(serializedObject.FindProperty("symbolName").stringValue));
                 
             }
-                
+            renderer.symbolName = renderer.library.symbolNames[selectedQueue];
         }
         public override void OnInspectorGUI()
         {
@@ -42,6 +42,7 @@ namespace editor
                     }
                     if(GUILayout.Button("load symbol"))
                     {
+                        
                         renderer.load();
                     }
                     if (serializedObject.FindProperty("maxFrames").intValue > 0)

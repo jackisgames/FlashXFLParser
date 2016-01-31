@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>5.3.1f1</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -59,12 +57,6 @@
     <Reference Include="UnityEngine.Networking">
       <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Networking">
-      <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEditor">
       <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
     </Reference>
@@ -76,10 +68,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\XFLParser\XFLLibrary.cs" />
     <Compile Include="Assets\XFLParser\display\Bitmap.cs" />
     <Compile Include="Assets\XFLParser\display\Symbol.cs" />
     <Compile Include="Assets\XFLParser\renderer\GUIRenderer.cs" />
-    <Compile Include="Assets\XFLParser\XFLLibrary.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Sample Animation\LIBRARY\ani_hop.xml" />
@@ -89,6 +81,9 @@
     <None Include="Assets\Sample Animation\LIBRARY\char_face.xml" />
     <None Include="Assets\Sample Animation\LIBRARY\char_foot_left.xml" />
     <None Include="Assets\Sample Animation\LIBRARY\char_foot_right.xml" />
+    <None Include="Assets\SampleAnimation2\LIBRARY\Symbol 1.xml" />
+    <None Include="Assets\SampleAnimation2\LIBRARY\Symbol 2.xml" />
+    <None Include="Assets\SampleAnimation2\LIBRARY\a.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

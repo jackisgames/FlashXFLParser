@@ -56,12 +56,16 @@ namespace display
         public int keyMode;
         [XmlAttribute("acceleration")]
         public int acceleration;
+        //[XmlArray("elements")]
+        //[XmlArrayItem("DOMSymbolInstance"), XmlArrayItem("DOMBitmapInstance")]
+        //public List<InstanceData> instances = new List<InstanceData>();
         [XmlArray("elements")]
-        [XmlArrayItem("DOMSymbolInstance"), XmlArrayItem("DOMBitmapInstance")]
-        public List<InstanceData> instances = new List<InstanceData>();
+        [XmlArrayItem("DOMSymbolInstance",Type =typeof(InstanceData))]
+        [XmlArrayItem("DOMBitmapInstance", Type = typeof(InstanceBitmap))]
+        public List<InstanceBaseData> instances = new List<InstanceBaseData>();
     }
     [Serializable]
-    public class InstanceData
+    public class InstanceBaseData
     {
         [XmlAttribute("libraryItemName")]
         public string libraryItemName;
@@ -69,12 +73,37 @@ namespace display
         public string symbolType;
         [XmlAttribute("loop")]
         public string loop;
-
+        [XmlAttribute("centerPoint3DX")]
+        public float centerPoint3DX;
+        [XmlAttribute("centerPoint3DY")]
+        public float centerPoint3DY;
         [XmlElement("matrix")]
         public MatrixHolder matrix = new MatrixHolder();
         [XmlElement("transformationPoint")]
         public TransformationPointData transformationPoint = new TransformationPointData();
-
+        public InstanceType type;
+    }
+    public enum InstanceType
+    {
+        DisplayObject,
+        Bitmap
+    }
+    [Serializable]
+    public class InstanceData:InstanceBaseData
+    {
+        InstanceData()
+        {
+            type = InstanceType.DisplayObject;
+        }
+        
+    }
+    [Serializable]
+    public class InstanceBitmap : InstanceBaseData
+    {
+        InstanceBitmap()
+        {
+            type = InstanceType.Bitmap;
+        }
     }
     [Serializable]
     public class MatrixHolder
@@ -84,7 +113,6 @@ namespace display
     }
     [Serializable]
     public class MatrixData {
-
         [XmlAttribute("a")]
         public float a=1;
         [XmlAttribute("b")]
@@ -121,6 +149,11 @@ namespace display
         public float x=0;
         [XmlAttribute("y")]
         public float y=0;
+        public PointData() { }
+        public PointData(float x, float y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 
 }
